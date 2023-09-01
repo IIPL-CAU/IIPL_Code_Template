@@ -3,7 +3,7 @@ from training import training
 from preprocessing import Preprocessing
 from testing import testing
 
-
+# Commit message template test용
 
 if __name__=='__main__':
     args = init_parser()
