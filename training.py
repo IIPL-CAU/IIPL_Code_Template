@@ -32,6 +32,7 @@ def training(args):
         optimizer = optimizer_init(args)
         
         for encoded, label in train_loader:
+            model.train()
             optimizer.zero_grad()
             outputs = model(**encoded, labels=label)
             loss = outputs.loss
