@@ -2,6 +2,7 @@ import argparse
 
 
 MODEL = "bert-base-uncased"
+bert_model_name = "bert-base-uncased"
 DATASET = 'IMDB'
 TASK = 'bert-base-uncased-classification'
 
@@ -11,6 +12,9 @@ model_path = 'models/save/bert-base-uncased-classification_IMDB_ver1.pt'
 
 epochs = 100
 lr = 0.1
+
+num_class = 2
+
 
 
 def init_parser():
@@ -29,9 +33,11 @@ def init_parser():
 
     parser.add_argument('--epochs', default=epochs, type=int,
                             help='epochs Default is 100')
-    parser.add_argument('--lr', default=lr, type=int,
+    parser.add_argument('--lr', default=lr, type=float,
                             help='epochs Default is 0.1')
     
+    parser.add_argument('--num_class', default=num_class, type=int)
+    parser.add_argument('--bert_model_name', default=bert_model_name, type=str)
     parser.add_argument('--task', default=TASK, type=str)
     
         
