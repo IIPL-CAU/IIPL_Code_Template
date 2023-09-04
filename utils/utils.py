@@ -4,6 +4,9 @@ import numpy as np
 import logging
 import argparse
 
+import wandb
+import random
+import string
 
 # seed setting
 def set_seed(seed=42):
@@ -49,6 +52,34 @@ def get_logger(logger_path:str=None, logger_name:str=None, args:argparse.Namespa
     logger.addHandler(file_handler)
     
     return logger
+
+# wandb setting
+def init_wandb(project_name="project", run_name:str=None, args:argparse.Namespace=None):
+    '''
+    로그인하고 필요한 부분에 적절히 적용하면 됨.
+    $ pip install wandb
+    $ wandb login
+
+    # init wandb
+    wandb.init(project="project_name", name="run_name", config=args)
+    # hyperparameter logging
+    wandb.config.update(args) 
+    # metric logging (dict) 다양한 형태로 logging 가능
+    wandb.log({"loss": loss}, step=epoch) 
+    # alert 가능
+    wandb.alert(title="alert title", text="alert text")
+    '''
+    if run_name is None:
+        if args is None:
+            run_name = get_run_name() # random name generation
+        else:
+            run_name = args.run_name
+
+    wandb.init(project=project_name, name=run_name,  config=args.__dict__)
+
+# size 만큼의 랜덤한 문자열 생성
+def get_run_name(size=12, args:argparse.Namespace=None):
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
 
 ##??
 def list_str2float(data):
