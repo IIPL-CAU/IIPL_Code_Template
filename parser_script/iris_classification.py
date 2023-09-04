@@ -5,7 +5,7 @@ MODEL = "ANN"
 DATASET = 'iris'
 TASK = 'iris_classification'
 
-file_dir = '/HDD/juhyoung/iris/Iris.csv'
+file_dir = 'dataset/iris/Iris.csv'
 file_type ='csv'
 model_path = 'models/save/iris_classification_ver1.pt'
 
