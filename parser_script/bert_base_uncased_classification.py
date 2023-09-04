@@ -1,21 +1,17 @@
 import argparse
 
 
-MODEL = "ANN"
-DATASET = 'iris'
-TASK = 'iris_classification'
+MODEL = "bert-base-uncased"
+DATASET = 'IMDB'
+TASK = 'bert-base-uncased-classification'
 
-file_dir = 'dataset/iris/Iris.csv'
+file_dir = '/HDD/dataset/IMDB'
 file_type ='csv'
-model_path = 'models/save/iris_classification_ver1.pt'
+model_path = 'models/save/bert-base-uncased-classification_IMDB_ver1.pt'
 
 epochs = 100
 lr = 0.1
 
-in_features = 4
-h1 = 8
-h2 = 9
-out_features = 3
 
 def init_parser():
     parser = argparse.ArgumentParser(description='Parsing Method')
@@ -36,17 +32,8 @@ def init_parser():
     parser.add_argument('--lr', default=lr, type=int,
                             help='epochs Default is 0.1')
     
-    if TASK == 'iris_classification':
-        parser.add_argument('--task', default=TASK, type=str)
-        parser.add_argument('--in_features', default=in_features, type=int, 
-                            help='in_features Default is 4')
-        parser.add_argument('--h1', default=h1, type=int, 
-                            help='h1 Default is 8')
-        parser.add_argument('--h2', default=h2, type=int, 
-                            help='h2 Default is 9')
-        parser.add_argument('--out_features', default=out_features, type=int, 
-                            help='out_features Default is 3')
-        
+    parser.add_argument('--task', default=TASK, type=str)
+    
         
 
         
