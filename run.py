@@ -1,4 +1,5 @@
-from parser_script.iris_classification import init_parser
+#from parser_script.iris_classification import init_parser
+from parser_script.bert_base_uncased_classification import init_parser
 from training import training
 from preprocessing import Preprocessing
 from testing import testing
