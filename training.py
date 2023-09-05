@@ -2,8 +2,12 @@ from models.model_init import model_init
 from utils.data_load import data_load
 from utils.optimizer import get_optimizer
 from utils.scheduler import get_linear_schedule_with_warmup
+from torch.utils.data import DataLoader
+from utils.dataset import CustomDataset
 from preprocessing import _tokenizer
 from torch import nn
+from tqdm import tqdm
+
 
 #tokenizer 적용 이전 잠시 berttokenizer 사용
 from transformers import BertTokenizer
@@ -49,38 +53,36 @@ def training(args):
             train_trg_list = total_trg_list['train']
             valid_trg_list = total_trg_list['valid']
 
-            #train_dataset = Custom_Dataset(tokenizer, train_src_list, train_trg_list, args)
-            #val_dataset = Custom_Dataset(tokenizer, valid_src_list, valid_trg_list, args)
-            #train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
+            train_dataset = CustomDataset(tokenizer, train_src_list, train_trg_list)
+            val_dataset = CustomDataset(tokenizer, valid_src_list, valid_trg_list)
+            train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
             #val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size)
             
             
             
             optimizer = get_optimizer(model=model, lr=args.lr, weight_decay=args.weight_decay, optim_type=args.optim_type)
-            #total_steps = len(train_dataloader) * args.epochs
-            total_steps = 100 # 테스트용입니다.
+            total_steps = len(train_dataloader) * args.epochs
             scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=total_steps)
-            print(scheduler)
 
             model.train()
-            for batch in train_dataloader:
-                optimizer.zero_grad()
-                input_ids = batch['src_sequence'].to(device)
-                attention_mask = batch['attention_mask'].to(device)
-                labels = batch['label'].to(device)
-                outputs = model(input_ids=input_ids, attention_mask=attention_mask)
-                loss = nn.CrossEntropyLoss()(outputs, labels)
+            pbar = tqdm(train_dataloader)
+            idx = 0 
+            for epoch in range(args.epochs):
+                print(f"Epoch {epoch + 1}/{args.epochs}")
+                for batch in pbar:
+                    optimizer.zero_grad()
+                    input_ids = batch['src_sequence'].to(device)
+                    attention_mask = batch['attention_mask'].to(device)
+                    labels = batch['label'].to(device)
+                    outputs = model(input_ids=input_ids, attention_mask=attention_mask)
+                    loss = nn.CrossEntropyLoss()(outputs, labels)
 
-                loss.backward()
-                optimizer.step()
-                scheduler.step()
-                if i % 10 ==0:
-                    #logger 적용 필요
-                    print(f'epoch {i}, loss is {loss}')
-                
-                #test 코드에 metric 작성되면 validation코드도 추가
-                
+                    loss.backward()
+                    optimizer.step()
+                    scheduler.step()
 
+                print(f'Epoch {epoch + 1}/ loss : {loss}')
+                #test 코드에 metric 작성되면 validation코드도 추가        
         torch.save(model.state_dict(), args.model_path)
 
 

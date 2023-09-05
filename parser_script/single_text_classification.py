@@ -3,18 +3,21 @@ import argparse
 
 MODEL = "bert-base-uncased"
 bert_model_name = "bert-base-uncased"
-DATASET = 'IMDB'
 TASK = 'single_text_classification'
+model_path = 'models/save/bert_base_uncased_classification_IMDB_ver1.pt'
 
 file_dir = 'dataset/IMDB'
 file_type ='csv'
-model_path = 'models/save/bert_base_uncased_classification_IMDB_ver1.pt'
-
-epochs = 100
-lr = 0.1
-optim_type = 'AdamW'
+DATASET = 'IMDB'
 num_classes = 2
+
+epochs = 4
+lr = 2e-5
+optim_type = 'AdamW'
+
 scheduler_type = 'get_linear_schedule_with_warmup'
+batch_size = 16
+
 
 
 def init_parser():
@@ -28,6 +31,7 @@ def init_parser():
     parser.add_argument('--dataset', default=DATASET, type=str)
     parser.add_argument('--val_ratio', default=0.2, type=float,
                             help='val_ratio Default is 0.2')
+    parser.add_argument('--batch_size', default=batch_size, type=int) 
 
     parser.add_argument('--model', default=MODEL, type=str)
     parser.add_argument('--file_dir', default=file_dir, type=str)
