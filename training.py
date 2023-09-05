@@ -41,7 +41,7 @@ def training(args):
             #tokenizer init함수 필요
             tokenizer = BertTokenizer.from_pretrained(args.bert_model_name)
             #data_load
-            """
+            
             total_src_list, total_trg_list = data_load(args)
 
             train_src_list = total_src_list['train']
@@ -53,7 +53,7 @@ def training(args):
             #val_dataset = Custom_Dataset(tokenizer, valid_src_list, valid_trg_list, args)
             #train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
             #val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size)
-            """
+            
             
             
             optimizer = get_optimizer(model=model, lr=args.lr, weight_decay=args.weight_decay, optim_type=args.optim_type)

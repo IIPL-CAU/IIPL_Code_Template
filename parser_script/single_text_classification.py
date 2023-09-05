@@ -6,7 +6,7 @@ bert_model_name = "bert-base-uncased"
 DATASET = 'IMDB'
 TASK = 'single_text_classification'
 
-file_dir = '/HDD/dataset/IMDB'
+file_dir = 'dataset/IMDB'
 file_type ='csv'
 model_path = 'models/save/bert_base_uncased_classification_IMDB_ver1.pt'
 
@@ -25,6 +25,9 @@ def init_parser():
     parser.add_argument('--testing', action='store_true')
     parser.add_argument('--resume', action='store_true')
     
+    parser.add_argument('--dataset', default=DATASET, type=str)
+    parser.add_argument('--val_ratio', default=0.2, type=float,
+                            help='val_ratio Default is 0.2')
 
     parser.add_argument('--model', default=MODEL, type=str)
     parser.add_argument('--file_dir', default=file_dir, type=str)
@@ -44,6 +47,7 @@ def init_parser():
     parser.add_argument('--num_classes', default=num_classes, type=int)
     parser.add_argument('--bert_model_name', default=bert_model_name, type=str)
     parser.add_argument('--task', default=TASK, type=str)
+    
     
         
 
