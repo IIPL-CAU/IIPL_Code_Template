@@ -25,6 +25,7 @@ def init_parser():
     parser.add_argument('--testing', action='store_true')
     parser.add_argument('--resume', action='store_true')
     
+    parser.add_argument('--dataset', default=DATASET, type=str)
 
     parser.add_argument('--model', default=MODEL, type=str)
     parser.add_argument('--file_dir', default=file_dir, type=str)

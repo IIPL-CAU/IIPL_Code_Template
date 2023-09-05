@@ -2,7 +2,7 @@ import argparse
 import torch
 import torch.nn as nn
 import torch.optim as optim
-import torch.optim.lr_scheduer as lr_scheduler
+#import torch.optim.lr_scheduer as lr_scheduler
 from transformers import get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
 
 
