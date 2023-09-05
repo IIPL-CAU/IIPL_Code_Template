@@ -9,7 +9,6 @@ from testing import testing
 if __name__=='__main__':
     args = init_parser()
     
-    
     if args.preprocessing:
         preprocessing(args)
 
@@ -18,5 +17,3 @@ if __name__=='__main__':
 
     if args.testing:
         testing(args)
-
-    

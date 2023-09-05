@@ -30,5 +30,3 @@ def data_load(args):
             y_test = torch.LongTensor(y_test)
 
             return X_train, X_test, y_train, y_test
-                
-            
