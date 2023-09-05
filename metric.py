@@ -32,15 +32,15 @@ def get_precision(labels, predictions):
 
 def get_recall(labels, predictions):
     recall = recall_score(labels, predictions)
-    print('recall: ', recall)
+    return {'recall: ', recall}
 
 
 def get_f1(labels, predictions):
     f1 = f1_score(labels, predictions)
-    print('f1 score: ', f1)
+    return {'f1 score: ', f1}
 
 
 def get_classification_report(labels, predictions):
     cr = classification_report(labels, predictions)
-    print('classification_repor: ', cr)
+    return {'classification_repor: ', cr}
     
