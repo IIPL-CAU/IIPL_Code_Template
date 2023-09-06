@@ -6,24 +6,12 @@ import torch.optim as optim
 from transformers import get_linear_schedule_with_warmup, get_cosine_schedule_with_warmup
 
 
-def get_scheduler(optimizer:optim.Optimizer, scheduler_type:str=None, scheduler_params:dict=None, 
-                  args:argparse.Namespace=None):
-    ''' 입력으로 명시하지 않으면 args에서 가져온다.
-    Args:
+def get_scheduler(optimizer:optim.Optimizer, scheduler_type:str=None, scheduler_params:dict=None):
+    ''' 
         scheduler_type (str): scheduler type {StepLR, MultiStepLR, ExponentialLR, CosineAnnealingLR, 
                                 ReduceLROnPlateau, get_cosine_schedule_with_warmup, get_linear_schedule_with_warmup}
         scheduler_parmas (dict): scheduler parameters (아래 명시된 params 필요)
     '''
-    if scheduler_type is None:
-        if args is None:
-            raise ValueError("scheduler_type is None and args is None")
-        else:
-            scheduler_type = args.scheduler
-    if scheduler_params is None:
-        if args is None:
-            raise ValueError("scheduler_params is None and args is None")
-        else:
-            scheduler_params = args.scheduler_params
     
     # lr_scheduler
     if scheduler_type == "StepLR":
