@@ -1,7 +1,7 @@
 from transformers import AutoTokenizer
 
-def _tokenizer(args):
-    if args.toknz == 'spm':
+def tokenizer_load(args):
+    if args.tokenizer == 'spm':
         pass
         '''
         spm.SentencePieceTrainer.Train(f'--input=imdb_review.txt --model_prefix=sentencepiece --vocab_size={vocab_size} --model_type=bpe --max_sentence_length={max_seq_length}')
@@ -9,7 +9,7 @@ def _tokenizer(args):
         vocab_file = "sentencepiece.model"
         '''
     else:
-        tokenizer = AutoTokenizer.from_pretrained(args.toknz, do_lower_case=args.do_lower_case)
+        tokenizer = AutoTokenizer.from_pretrained(args.tokenizer, do_lower_case=args.do_lower_case)
         
         if args.pretrained == False:
             def get_training_corpus(data):    # data : total_src_list['train'] = ["Hello, my dog is cute", "Hello, my dog is cute", 'I am a boy']
