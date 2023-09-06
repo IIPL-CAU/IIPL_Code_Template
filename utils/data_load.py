@@ -9,33 +9,57 @@ from sklearn.model_selection import train_test_split
 
 
 # data loader by yeonghwa
-def data_load(dataset_path:str=None, data_split_ratio:list=None, seed:int=None, 
+def data_load(dataset_path:str, data_split_ratio:list=None, seed:int=None, 
                                                                     mode:str="train") -> (list, list):
     ''' 
         dataset_path (str): dataset name {imdb, ...} or dataset path
         data_split_ratio (list or None): [train, validation, test] split ratio eg., [0.8, 0.1, 0.1]
                                         *** if None, using original dataset split ratio ***
+        seed (int or None): random seed
         mode (str): {train, valid, test}
     '''
             
     # huggingface dataset인 경우
     if not dataset_path.endswith(".csv") or dataset_path.endswith(".tsv") or dataset_path.endswith(".json"):
+        dataset_path = dataset_path.lower()
         # IMDB
-        if dataset_path == "imdb" or dataset_path == "IMDB":
-            if data_split_ratio is None:
-                raise ValueError("IMDB only have 'train', 'test', 'unsupervised'. We need 'data_split_ratio'")
+        if dataset_path == "imdb": # type : {train, test, unsupervised}
 
-            # type : {train, test, unsupervised}
+            if data_split_ratio is None or seed is None:
+                raise ValueError("data_split_ratio and seed must be specified when using IMDB dataset")
+
             raw_dataset = load_dataset("imdb") # <class 'datasets.arrow_dataset.Dataset'>
             combined_dataset = concatenate_datasets([raw_dataset["train"], raw_dataset["test"]])
             combined_dataset = combined_dataset.to_dict() # dict_keys(['text', 'label'])
             
             src_list, trg_list = split_data(dataset=combined_dataset, ratio=data_split_ratio, seed=seed, mode=mode)
-
-            return src_list, trg_list # dict, dict
+            return src_list, trg_list # list, list
+        
         # SST2
-        elif dataset_path == "sst2" or dataset_path == "SST2":
+        elif dataset_path == "sst2":
             peint("SST2")
+        
+        # multi30k (en-de)
+        elif dataset_path == "bentrevett/multi30k" or dataset_path == "multi30k": # type : {train, validation, test}
+            # data_split_ratio가 None인 경우 original dataset split ratio 사용
+            if data_split_ratio is None:
+
+                if mode == "valid": mode = "validation"
+                raw_dataset = load_dataset("bentrevett/multi30k", split=mode)
+                
+                return raw_dataset['en'], raw_dataset['de']
+            # data_split_ratio만큼 split
+            else: 
+                if seed is None:
+                    raise ValueError("seed must be specified when using data_split_ratio")
+
+                raw_dataset = load_dataset("bentrevett/multi30k")
+                combined_dataset = concatenate_datasets([raw_dataset["train"], raw_dataset["validation"], raw_dataset["test"]])
+                combined_dataset = combined_dataset.to_dict() # dict_keys(['en', 'de'])
+
+                src_list, trg_list = split_data(dataset=combined_dataset, ratio=data_split_ratio, seed=seed, mode=mode)
+
+                return src_list, trg_list # list, list
             
     # local file인 경우
     else:
@@ -59,9 +83,17 @@ def split_data(dataset:dict, ratio:list, seed:int, mode:str) -> (list, list):
                                                                 random_state=seed, test_size=val_test_ratio)
     if mode == "valid":
         return val_src_list, val_trg_list
+
     elif mode == "test":
         return test_src_list, test_trg_list
 
+if __name__ == '__main__':
+    # a, b = data_load(dataset_path="imdb", seed=42, data_split_ratio=[0.8, 0.1, 0.1])
+    # data_load(dataset_path="bentrevett/multi30k", seed=42, data_split_ratio=[0.8, 0.1, 0.1])
+    a, b = data_load(dataset_path="bentrevett/multi30k", seed=None, data_split_ratio=[0.8, 0.1, 0.1], mode="valid")
+    print(len(a))
+    print(a[0])
+        
         
 # from local
 # def data_load(args):
@@ -133,7 +165,3 @@ def split_data(dataset:dict, ratio:list, seed:int, mode:str) -> (list, list):
 
             
                     
-
-# if __name__ == '__main__':
-#     a, b = data_load(dataset_path="imdb", seed=42, data_split_ratio=[0.8, 0.1, 0.1])
-#     print(len(a))
