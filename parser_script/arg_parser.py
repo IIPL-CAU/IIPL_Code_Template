@@ -1,15 +1,12 @@
 import argparse
 
-
-MODEL = "bert-base-uncased"
-bert_model_name = "bert-base-uncased"
+MODEL = 'bert-base-uncased'
 TASK = 'single_text_classification'
 model_path = 'models/save/bert_base_uncased_classification_IMDB_ver1.pt'
 
 file_dir = 'dataset/IMDB'
 file_type ='csv'
 DATASET = 'IMDB'
-num_classes = 2
 
 epochs = 4
 lr = 2e-5
@@ -23,6 +20,7 @@ batch_size = 16
 def init_parser():
     parser = argparse.ArgumentParser(description='Parsing Method')
     # Task setting
+    parser.add_argument('--task', default=TASK, type=str)
     parser.add_argument('--preprocessing', action='store_true')
     parser.add_argument('--training', action='store_true')
     parser.add_argument('--testing', action='store_true')
@@ -34,7 +32,7 @@ def init_parser():
     parser.add_argument('--batch_size', default=batch_size, type=int) 
 
     parser.add_argument('--model', default=MODEL, type=str)
-    parser.add_argument('--file_dir', default=file_dir, type=str)
+    parser.add_argument('--dataset_path', default=file_dir, type=str)
     parser.add_argument('--file_type', default=file_type, type=str)
     parser.add_argument('--model_path', default=model_path, type=str)
 
@@ -47,15 +45,6 @@ def init_parser():
                             help='epochs Default is 100')
     parser.add_argument('--lr', default=lr, type=float,
                             help='epochs Default is 0.1')
-    
-    parser.add_argument('--num_classes', default=num_classes, type=int)
-    parser.add_argument('--bert_model_name', default=bert_model_name, type=str)
-    parser.add_argument('--task', default=TASK, type=str)
-    
-    
-        
-
-        
     
     args = parser.parse_args()
 

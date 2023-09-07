@@ -1,5 +1,5 @@
 #from parser_script.iris_classification import init_parser
-from parser_script.single_text_classification import init_parser
+from parser_script.arg_parser import init_parser
 from training import training
 #from preprocessing import Preprocessing
 from testing import testing
