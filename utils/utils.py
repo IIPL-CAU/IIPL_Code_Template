@@ -1,9 +1,9 @@
 import os
+import sys
 import torch
 import numpy as np
 import logging
 import argparse
-
 import wandb
 import random
 import string
@@ -20,27 +20,22 @@ def set_seed(seed:int=None) -> None:
     os.environ['PYTHONHASHSEED'] = str(seed)
 
 # logger setting
-def get_logger(logger_path:str=None, logger_name:str=None):
+def get_logger(logger_name:str=None):
     ''' 
         logger = get_logger(logger_path, logger_name, args)
         logger.info("message")
     '''
-    # logger file generation        
-    if not os.path.exists(logger_path):
-        os.makedirs(logger_path)
-
     logger = logging.getLogger(logger_name)
+    logger.propagate = False
     logger.setLevel(logging.INFO)
-    formatter = logging.Formatter('%(message)s')
-    
-    file_handler = logging.FileHandler(logger_path)
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys..stdout)
+        handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
+        logger.addHandler(handler)
     return logger
 
 # wandb setting
-def init_wandb(wandb_dir="./wandb", project_name="project", run_name:str=None):
+def init_wandb(wandb_dir="./wandb", project_name="project", run_name:str=None, args:argparse.Namespace=None):
     '''
     로그인하고 필요한 부분에 적절히 적용하면 됨.
     $ pip install wandb
