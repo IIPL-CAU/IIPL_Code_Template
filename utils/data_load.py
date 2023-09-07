@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 
 # data loader by yeonghwa
-def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=42, 
+def data_load(dataset_path:str, data_split_ratio:list=None, seed:int=None, 
                                                                     mode:str="train") -> (list, list):
     ''' 
         dataset_path (str): dataset name {imdb, ...} or dataset path
@@ -37,7 +37,7 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
         
         # SST2
         elif dataset_path == "sst2":
-            print("SST2")
+            peint("SST2")
         
         # multi30k (en-de)
         elif dataset_path == "bentrevett/multi30k" or dataset_path == "multi30k": # type : {train, validation, test}
