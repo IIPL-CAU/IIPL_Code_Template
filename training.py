@@ -13,7 +13,7 @@ from preprocessing import _tokenizer
 from torch import nn
 from tqdm import tqdm
 
-from preprocessing import tokenizer_init
+from models.tokenizer.tokenizer_init import tokenizer_init
 
 def training(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
