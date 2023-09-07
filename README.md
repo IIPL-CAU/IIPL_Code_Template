@@ -8,7 +8,7 @@ This code is written in Python. Dependencies include
 * Python == 3.6
 * PyTorch == 1.10.0
 * Transformers (Huggingface) == 4.8.1
-* NLG-Eval == 2.3.0 (https://github.com/Maluuba/nlg-eval)
+* sklearn (Scikit-Learn) == 1.3.0
 
 ### Usable Data
 #### Neural Machine Translation
@@ -30,5 +30,5 @@ This code is written in Python. Dependencies include
 To train the model, add the training (--training) option. Currently, only the Transformer model is available, but RNN and Pre-trained Language Model will be added in the future.
 
 ```
-python main.py --training
+python run.py --training
 ```
