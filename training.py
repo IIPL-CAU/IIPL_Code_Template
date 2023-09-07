@@ -9,7 +9,6 @@ from utils.optimizer import get_optimizer
 from utils.scheduler import get_linear_schedule_with_warmup
 from torch.utils.data import DataLoader
 from utils.dataset import CustomDataset
-from preprocessing import _tokenizer
 from torch import nn
 from tqdm import tqdm
 
