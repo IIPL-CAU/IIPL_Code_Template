@@ -15,19 +15,17 @@ from tqdm import tqdm
 from preprocessing import tokenizer_load
 
 def training(args):
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    device = torch.device(f'cuda:{args.local_rank}' if torch.cuda.is_available() else "cpu")
+    torch.cuda.set_device(device)
+    print('Deive : ' + str(device))
     # Model Load
     model = model_init(args)
     model.to(device)
 
     # Data Load
-    total_src_list, total_trg_list = data_load(args)
-
-    train_src_list = total_src_list['train']
-    valid_src_list = total_src_list['valid']
-    train_trg_list = total_trg_list['train']
-    valid_trg_list = total_trg_list['valid']
+    tr_src_list, tr_trg_list = data_load(dataset_path=args.data_path, mode="train", data_split_ratio=args.data_split_ratio, seed=42)
+    val_src_list, val_trg_list = data_load(dataset_path=args.data_path, mode="valid", data_split_ratio=args.data_split_ratio, seed=42)
+    
     
     # if args.task == 'iris_classification':
     #     losses = []
@@ -54,10 +52,11 @@ def training(args):
             tokenizer = tokenizer_load(args)
             # tokenizer = BertTokenizer.from_pretrained(args.bert_model_name)
 
-            train_dataset = CustomDataset(tokenizer, train_src_list, train_trg_list)
-            val_dataset = CustomDataset(tokenizer, valid_src_list, valid_trg_list)
+            train_dataset = CustomDataset(tokenizer, tr_src_list, tr_trg_list)
+            print(len(train_dataset))
+            val_dataset = CustomDataset(tokenizer, val_src_list, val_trg_list)
             train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True)
-            #val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size)
+            val_dataloader = DataLoader(val_dataset, batch_size=args.batch_size)
             
             optimizer = get_optimizer(model=model, lr=args.lr, weight_decay=args.weight_decay, optim_type=args.optim_type)
             scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(train_dataloader) * args.epochs)
