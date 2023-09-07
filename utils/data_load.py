@@ -9,7 +9,7 @@ from sklearn.model_selection import train_test_split
 
 
 # data loader by yeonghwa
-def data_load(dataset_path:str, data_split_ratio:list=None, seed:int=None, 
+def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=42, 
               mode:str="train") -> (list, list):
     ''' 
         dataset_path (str): dataset name {imdb, ...} or dataset path
