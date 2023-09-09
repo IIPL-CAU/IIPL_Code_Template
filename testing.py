@@ -64,6 +64,9 @@ def testing(args):
             report      = metric.get_classification_report(total_labels, total_predictions)
             
             print(accuracy)
+            print(recall)
+            print(precision)
+            print(f1)
 
             return accuracy, recall, precision, f1, report
         
