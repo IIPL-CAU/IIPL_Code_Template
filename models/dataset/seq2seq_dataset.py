@@ -8,6 +8,7 @@ class Seq2Seq_CustomDataset(Dataset):
         self.trg_tensor_list = list()
         
         self.src_tokenizer = src_tokenizer
+        self.trg_tokenizer = trg_tokenizer
 
         self.min_len = min_len
         self.src_max_len = src_max_len
