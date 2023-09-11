@@ -1,5 +1,5 @@
 # Import modules
-
+import numpy as np
 # Import PyTorch
 import torch
 # Import custom modules
