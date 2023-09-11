@@ -7,7 +7,7 @@ class BERTClassifier(nn.Module):
     def __init__(self, args):
         super(BERTClassifier, self).__init__()
         self.num_classes = args.num_classes
-        self.bert_model_name = args.bert_model_name
+        self.bert_model_name = args.model
         
         self.bert = BertModel.from_pretrained(self.bert_model_name)
         self.dropout = nn.Dropout(0.1)
