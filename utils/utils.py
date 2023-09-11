@@ -1,8 +1,15 @@
 import os
+import sys
 import torch
 import numpy as np
+import logging
+import argparse
+import wandb
+import random
+import string
 
-def set_seed(seed=42):
+# seed setting
+def set_seed(seed:int=None) -> None:
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -12,9 +19,42 @@ def set_seed(seed=42):
     # Set a fixed value for the hash seed
     os.environ['PYTHONHASHSEED'] = str(seed)
 
-def list_str2float(data):
-    ret = []
-    for s in data:
-        ret.append(float(s))
-    
-    return ret
+# logger setting
+def get_logger(logger_name:str=None):
+    ''' 
+        logger = get_logger(logger_path, logger_name, args)
+        logger.info("message")
+    '''
+    logger = logging.getLogger(logger_name)
+    logger.propagate = False
+    logger.setLevel(logging.INFO)
+    if not logger.handlers:
+        handler = logging.StreamHandler(sys..stdout)
+        handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
+        logger.addHandler(handler)
+    return logger
+
+# wandb setting
+def init_wandb(wandb_dir="./wandb", project_name="project", run_name:str=None, args:argparse.Namespace=None):
+    '''
+    로그인하고 필요한 부분에 적절히 적용하면 됨.
+    $ pip install wandb
+    $ wandb login
+
+    # init wandb
+    wandb.init(project="project_name", name="run_name", config=args)
+    # hyperparameter logging
+    wandb.config.update(args) 
+    # metric logging (dict) 다양한 형태로 logging 가능
+    wandb.log({"loss": loss}, step=epoch) 
+    # alert 가능
+    wandb.alert(title="alert title", text="alert text")
+    '''
+    if run_name is None:
+        run_name = get_run_name() # random name generation
+
+    wandb.init(dir=wandb_dir, project=project_name, name=run_name,  config=args.__dict__)
+
+# size 만큼의 랜덤한 문자열 생성
+def get_run_name(size=12, args:argparse.Namespace=None):
+    return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
