@@ -1,46 +1,72 @@
 from models.model_init import model_init
 import torch
+from torch.utils.data import DataLoader
 from utils.data_load import data_load
+from models.dataset.dataset_init import dataset_init
 import numpy as np
 
 from tqdm import tqdm
-import metric
-
+from utils import metric
+from models.tokenizer.tokenizer_init import tokenizer_load
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 def testing(args):
-    
-    if args.task == 'bert-base-uncased-classification model':
-        model = model_init(args)
-        model.load_state_dict(torch.load(args.model_path))
-        model.eval()  # Dropout, Batchnorm등의 기능을 비활성화
-        # eval_accuracy = 0
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-        for encoded, label in tqdm(test_dataloader):
+    # Data Load
+    test_src_list, test_trg_list = data_load(dataset_path=args.dataset_path, data_split_ratio=args.data_split_ratio,
+                                            seed=args.seed, mode='test')
+    args.num_classes = len(set(test_trg_list))
 
-            # input_ids = batch['input_ids'].to(device)
-            # input_mask = batch['attention_mask'].to(device)
-            # labels = batch['label'].to(device)
+    model = model_init(args)
+    model.to(device)
+
+    if args.task == 'single_text_classification':
+        if args.model == "bert-base-uncased":
+            # tokenizer init
+            src_tokenizer = tokenizer_load(args)
+
+            # Test dataset setting
+            custom_dataset_dict = dict()
+            custom_dataset_dict['src_tokenizer'] = src_tokenizer
+            custom_dataset_dict['src_list'] = test_src_list
+            custom_dataset_dict['trg_list'] = test_trg_list
+            test_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
+            test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True,
+                                          pin_memory=True, num_workers=args.num_workers)
+            # eval_accuracy = 0
             
-            with torch.no_grad(): # gradient 계산 context를 비활성화 ==> 필요한 메모리가 줄어들고 연산속도가 증가
-                outputs = model(**encoded, labels=label).to(device)
-                # outputs = model(input_ids, 
-                #         token_type_ids=None, 
-                #         attention_mask=input_mask)
+            
+            total_predictions = []
+            total_labels = []
+            
+            for batch in tqdm(test_dataloader):
+                # Input setting
+                src_sequence = batch['src_sequence'].to(device)
+                src_attention_mask = batch['src_attention_mask'].to(device)
+                trg_label = batch['trg_label'].to(device)
                 
-                logits = outputs.logits
+                with torch.no_grad(): # gradient 계산 context를 비활성화 ==> 필요한 메모리가 줄어들고 연산속도가 증가
+                    outputs = model(input_ids=src_sequence, attention_mask=src_attention_mask)
 
-            logits = logits.detach().cpu().numpy() 
-            predictions = np.argmax(logits, axis=1)
-            labels = labels.detach().cpu().numpy() 
-            
-            accuracy = metric.get_accuracy(labels, predictions)
-            recall_score = metric.get_recall(labels, predictions)
-            precision_score = metric.get_precision(labels, predictions)
-            f1_score = metric.get_f1(labels, predictions)
-            report = metric.get_classification_report(labels, predictions)
-            
+                    logits = outputs.detach().cpu().numpy() 
+                    predictions = np.argmax(logits, axis=1)
+                    labels = trg_label.detach().cpu().numpy() 
 
-        return accuracy, recall_score, precision_score, f1_score, report
+                    total_predictions.extend(predictions)
+                    total_labels.extend(labels)
+                    
+            accuracy    = metric.get_accuracy(total_labels, total_predictions)
+            recall      = metric.get_recall(total_labels, total_predictions)
+            precision   = metric.get_precision(total_labels, total_predictions)
+            f1          = metric.get_f1(total_labels, total_predictions)
+            report      = metric.get_classification_report(total_labels, total_predictions)
+            
+            print(accuracy)
+            print(recall)
+            print(precision)
+            print(f1)
+
+            return accuracy, recall, precision, f1, report
         

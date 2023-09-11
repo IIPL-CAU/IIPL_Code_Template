@@ -9,11 +9,10 @@ from utils.optimizer import get_optimizer
 from utils.scheduler import get_linear_schedule_with_warmup
 from torch.utils.data import DataLoader
 from models.dataset.dataset_init import dataset_init
-from preprocessing import _tokenizer
 from torch import nn
 from tqdm import tqdm
 
-from models.tokenizer.tokenizer_init import tokenizer_init
+from models.tokenizer.tokenizer_init import tokenizer_load
 
 def training(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
@@ -32,22 +31,22 @@ def training(args):
     if args.task =='single_text_classification':
         if args.model == "bert-base-uncased":
 
-            # tokenizer init함수 필요
-            src_tokenizer = tokenizer_init(args)
+            # tokenizer init
+            src_tokenizer = tokenizer_load(args)
 
             # Train dataset setting
             custom_dataset_dict = dict()
             custom_dataset_dict['src_tokenizer'] = src_tokenizer
             custom_dataset_dict['src_list'] = train_src_list
             custom_dataset_dict['trg_list'] = train_trg_list
-            train_dataset = dataset_init(args=args, data=custom_dataset_dict)
+            train_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
             train_dataloader = DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
                                           pin_memory=True, num_workers=args.num_workers)
 
             # Valid dataset setting
             custom_dataset_dict['src_list'] = valid_src_list
             custom_dataset_dict['trg_list'] = valid_trg_list
-            valid_dataset = dataset_init(args=args, data=custom_dataset_dict)
+            valid_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
             valid_dataloader = DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False,
                                           pin_memory=True, num_workers=args.num_workers)
             
