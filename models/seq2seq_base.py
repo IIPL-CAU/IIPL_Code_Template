@@ -10,11 +10,11 @@ from transformers import AutoTokenizer
 # Import Custom Modules
 from utils import encoder_model_setting, decoder_model_setting
 
-class TransformerModel(nn.Module):
+class seq2seq_base(nn.Module):
     def __init__(self, encoder_model_type: str = 'T5-base', decoder_model_type: str = 'T5-base', 
                  src_vocab_num: int = 32000, trg_vocab_num: int = 32000,
                  isPreTrain: bool = True, dropout: float = 0.3):
-        super().__init__()
+        super(seq2seq_base, self).__init__()
 
         """
         Initialize Seq2Seq model
@@ -25,8 +25,10 @@ class TransformerModel(nn.Module):
             src_vocab_num (int): Source vocabulary number
             trg_vocab_num (int): Target vocabulary number
             isPreTrain (bool): Pre-trained model usage
+            dropout (float): Dropout ratio
         """
         self.isPreTrain = isPreTrain
+        self.dropout = dropout
 
         # Encoder model setting
         self.encoder_model_type = encoder_model_type
