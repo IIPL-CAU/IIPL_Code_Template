@@ -1,6 +1,7 @@
 import torch
 from torch import nn
 from transformers import BertModel
+import torch.nn.functional as F
 
 class seq2label_base(nn.Module):
     def __init__(self, args):
