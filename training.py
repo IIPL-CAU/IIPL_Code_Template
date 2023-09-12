@@ -1,5 +1,5 @@
 # Import modules
-
+import numpy as np
 # Import PyTorch
 import torch
 # Import custom modules
@@ -8,28 +8,37 @@ from utils.data_load import data_load
 from utils.optimizer import get_optimizer
 from utils.scheduler import get_linear_schedule_with_warmup
 from torch.utils.data import DataLoader
+from utils.utils import get_logger
+from utils import metric
 from models.dataset.dataset_init import dataset_init
 from torch import nn
 from tqdm import tqdm
 import wandb
 
 from models.tokenizer.tokenizer_init import tokenizer_load
+logger = get_logger("Training")
+
 
 def training(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-
+    
     # Data Load
     train_src_list, train_trg_list = data_load(dataset_path=args.dataset_path, data_split_ratio=args.data_split_ratio,
                                                seed=args.seed, mode='train')
     valid_src_list, valid_trg_list = data_load(dataset_path=args.dataset_path, data_split_ratio=args.data_split_ratio,
                                                seed=args.seed, mode='valid')
     args.num_classes = len(set(train_trg_list))
+    logger.info(f'{args.dataset} data_load finish')
 
     # Model Load
+    logger.info(f'start {args.model} model init')
     model = model_init(args)
     model.to(device)
-    wandb.watch(model)
 
+    wandb.watch(model)
+    logger.info(f'{args.model} model loaded')
+
+    logger.info(f'{args.task} start train!')
     if args.task =='single_text_classification':
         if args.model == "bert-base-uncased":
 
@@ -61,8 +70,12 @@ def training(args):
             scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader_dict['train']) * args.epochs)
             criterion = nn.CrossEntropyLoss()
 
+            Best_acc = 0
             for epoch in range(args.epochs):
                 print(f"Epoch {epoch + 1}/{args.epochs}")
+
+                total_predictions = []
+                total_labels = []
 
                 for phase in ['train', 'valid']:
                     if phase == 'train':
@@ -70,7 +83,8 @@ def training(args):
                     if phase == 'valid':
                         # write_log(logger, 'Validation start...')
                         model.eval()
-
+                        logger.info(f"validation...")
+                        
                     for batch in tqdm(dataloader_dict[phase]):
 
                         # Optimizer gradient setting
@@ -84,7 +98,6 @@ def training(args):
                         # Model processing
                         with torch.set_grad_enabled(phase == 'train'):
                             outputs = model(input_ids=src_sequence, attention_mask=src_attention_mask)
-
                         # Loss back-propagation
                         loss = criterion(outputs, trg_label)
 
@@ -94,37 +107,24 @@ def training(args):
                             scheduler.step()
 
                         if phase == 'valid':
-                            pass
-                            # 결과 출력 및 모델 저장 코드 여기 들어가야함
-                            # [아래는 예시]
-                            # save_file_name = os.path.join(args.model_save_path, args.data_name, args.aug_encoder_model_type, f'checkpoint_seed_{args.random_seed}.pth.tar')
-                            # if val_recon_loss < best_aug_val_loss:
-                            #     write_log(logger, 'Model checkpoint saving...')
-                            #     torch.save({
-                            #         'cls_training_done': True,
-                            #         'epoch': epoch,
-                            #         'model': model.state_dict(),
-                            #         'aug_cls_optimizer': aug_cls_optimizer.state_dict(),
-                            #         'aug_recon_optimizer': aug_recon_optimizer.state_dict(),
-                            #         'aug_cls_scheduler': aug_cls_scheduler.state_dict(),
-                            #         'aug_recon_scheduler': aug_recon_scheduler.state_dict(),
-                            #     }, save_file_name)
-                            #     best_aug_val_loss = val_recon_loss
-                            #     best_aug_epoch = epoch
-                            # else:
-                            #     else_log = f'Still {best_aug_epoch} epoch Loss({round(best_aug_val_loss.item(), 2)}) is better...'
-                            #     write_log(logger, else_log)
 
-                    # print(f'Epoch {epoch + 1}/ loss : {loss}')
-                    # test 코드에 metric 작성되면 validation코드도 추가
+                            logits = outputs.detach().cpu().numpy() 
+                            predictions = np.argmax(logits, axis=1)
+                            labels = trg_label.detach().cpu().numpy() 
+                            total_predictions.extend(predictions)
+                            total_labels.extend(labels)
 
-
+                val_acc = metric.accuracy_score(total_labels,total_predictions)
+                if val_acc > Best_acc : 
+                    torch.save(model.state_dict(), args.model_path)
+                    Best_acc = val_acc
+                logger.info(f"validation finish! Acc : {val_acc} / best acc : {Best_acc}")
 
         # torch.save(model.state_dict(), args.model_path)
 
     # if args.task =='multi_text_classification':
     #     pass
-
+    
     if args.task =='machine_translation':
         src_tokenizer = tokenizer_load(args)
         trg_tokenizer = tokenizer_load(args)
@@ -194,5 +194,9 @@ def training(args):
                     if phase == 'valid':
                         pass
                         # TO BE IMPLEMENTED
+
+    # if args.task =='machine_translation':
+    #     pass
+
 
     # return None

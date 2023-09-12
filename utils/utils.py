@@ -25,13 +25,22 @@ def get_logger(logger_name:str=None):
         logger = get_logger(logger_path, logger_name, args)
         logger.info("message")
     '''
+    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(logger_name)
     logger.propagate = False
     logger.setLevel(logging.INFO)
+    
+    
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-        handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
+
+        #handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
+
         logger.addHandler(handler)
+    
+    #https://docs.python.org/3/library/logging.handlers.html
+    #check the library(link above) but there is no StreamHandler.setFomatter : maybe library modified? 
+    
     return logger
 
 # wandb setting
