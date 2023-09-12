@@ -11,6 +11,7 @@ from torch.utils.data import DataLoader
 from models.dataset.dataset_init import dataset_init
 from torch import nn
 from tqdm import tqdm
+import wandb
 
 from models.tokenizer.tokenizer_init import tokenizer_load
 
@@ -27,6 +28,7 @@ def training(args):
     # Model Load
     model = model_init(args)
     model.to(device)
+    wandb.watch(model)
 
     if args.task =='single_text_classification':
         if args.model == "bert-base-uncased":
@@ -80,7 +82,10 @@ def training(args):
 
                 print(f'Epoch {epoch + 1}/ loss : {loss}')
                 #test 코드에 metric 작성되면 validation코드도 추가  
-
+                wandb.log({
+                    "Train loss" : loss,
+                    
+                })
 
 
         torch.save(model.state_dict(), args.model_path)
