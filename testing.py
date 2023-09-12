@@ -23,6 +23,8 @@ def testing(args):
     args.num_classes = len(set(test_trg_list))
 
     model = model_init(args)
+    checkpoint = torch.load(args.model_path)
+    model.load_state_dict(checkpoint)
     model.to(device)
 
     if args.task == 'single_text_classification':
