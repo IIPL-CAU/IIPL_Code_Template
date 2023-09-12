@@ -94,6 +94,7 @@ def training(args):
                             scheduler.step()
 
                         if phase == 'valid':
+                            pass
                             # 결과 출력 및 모델 저장 코드 여기 들어가야함
                             # [아래는 예시]
                             # save_file_name = os.path.join(args.model_save_path, args.data_name, args.aug_encoder_model_type, f'checkpoint_seed_{args.random_seed}.pth.tar')
@@ -119,12 +120,12 @@ def training(args):
 
 
 
-        torch.save(model.state_dict(), args.model_path)
+        # torch.save(model.state_dict(), args.model_path)
 
-    if args.task =='multi_text_classification':
-        pass
+    # if args.task =='multi_text_classification':
+    #     pass
 
-    if args.task =='machine_translation':
-        pass
+    # if args.task =='machine_translation':
+    #     pass
 
-    return None
+    # return None
