@@ -3,6 +3,7 @@ import argparse
 import torch
 from datasets import load_dataset, concatenate_datasets
 import numpy as np
+from tqdm import tqdm 
 import csv
 from sklearn.model_selection import train_test_split
 # from utils.utils import list_str2float
@@ -10,10 +11,11 @@ from sklearn.model_selection import train_test_split
 
 # data loader 
 # data_split_ratio가 None인 경우 huggingface dataset의 original dataset split ratio 사용
-def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=42, 
+def data_load(dataset_path:str, huggingface_data:bool=True, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=42, 
               mode:str="train") -> (list, list):
-    ''' 
+    '''
         dataset_path (str): dataset name {imdb, ...} or dataset path
+        huggingface_data = {True, False} whether to use the huggingface dataset (datasets > load_dataset library)
         data_split_ratio (list or None): [train, validation, test] split ratio 
                                         *** if None, using original dataset split ratio ***
         seed (int or None): random seed
@@ -21,8 +23,7 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
     '''
             
     # huggingface dataset인 경우
-    if not dataset_path.endswith(".csv") or dataset_path.endswith(".tsv") or dataset_path.endswith(".json"):
-
+    if huggingface_data == True:
         dataset_path = dataset_path.lower()
         # IMDB
         if dataset_path == "imdb": # type : {train, test, unsupervised}
@@ -35,7 +36,11 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
             combined_dataset = combined_dataset.to_dict() # dict_keys(['text', 'label'])
             
             src_list, trg_list = split_data(dataset=combined_dataset, ratio=data_split_ratio, seed=seed, mode=mode)
-            return src_list, trg_list # list, list
+            
+            src_dict = {'src_a' : src_list, 'src_b' : None}
+            trg_dict = {'trg' : trg_list}
+                        
+            return src_dict, trg_dict # dict, dict
         
         # SST2
         elif dataset_path == "sst2": # type : {train, validation, test}
@@ -44,7 +49,11 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
 
                 if mode == "valid": mode = "validation"
                 raw_dataset = load_dataset("glue", "sst2", split=mode)
-                return raw_dataset['sentence'], raw_dataset['label']
+                
+                src_dict = {'src_a' : raw_dataset['sentence'], 'src_b' : None}
+                trg_dict = {'trg' : raw_dataset['label']}
+                
+                return src_dict, trg_dict # dict, dict
             
             # data_split_ratio만큼 split
             else:
@@ -53,7 +62,11 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
                 combined_dataset = combined_dataset.to_dict()
 
                 src_list, trg_list = split_data(dataset=combined_dataset, ratio=data_split_ratio, seed=seed, mode=mode)
-                return src_list, trg_list # list, list
+                
+                src_dict = {'src_a' : src_list, 'src_b' : None}
+                trg_dict = {'trg' : trg_list}
+                        
+                return src_dict, trg_dict # dict, dict
         
         # multi30k (en-de)
         elif dataset_path == "bentrevett/multi30k" or dataset_path == "multi30k": # type : {train, validation, test}
@@ -62,7 +75,11 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
 
                 if mode == "valid": mode = "validation"
                 raw_dataset = load_dataset("bentrevett/multi30k", split=mode)
-                return raw_dataset['en'], raw_dataset['de']
+                
+                src_dict = {'src_a' : raw_dataset['en'], 'src_b' : None}
+                trg_dict = {'trg' : raw_dataset['de']}
+                
+                return src_dict, trg_dict # dict, dict
 
             # data_split_ratio만큼 split
             else: 
@@ -71,12 +88,59 @@ def data_load(dataset_path:str, data_split_ratio:list=[0.8, 0.1, 0.1], seed:int=
                 combined_dataset = combined_dataset.to_dict() # dict_keys(['en', 'de'])
 
                 src_list, trg_list = split_data(dataset=combined_dataset, ratio=data_split_ratio, seed=seed, mode=mode)
-                return src_list, trg_list # list, list
+                
+                src_dict = {'src_a' : src_list, 'src_b' : None}
+                trg_dict = {'trg' : trg_list}
+                
+                return src_dict, trg_dict # dict, dict
             
     # local file인 경우
-    else:
-        raise ValueError("To be continued...")
-        return [], []
+    elif huggingface_data == False:
+        
+        def _read_tsv(input_file, quotechar=None):
+            with open(input_file, "r", encoding='utf-8') as f:
+                reader = csv.reader(f, delimiter="\t", quotechar=quotechar)
+                lines = []
+                for line in reader:
+                    lines.append(line)
+                return lines
+                 
+        src_a_list = []
+        src_b_list = []
+        trg_list = []
+        
+        dataset_name = str(dataset_path).split('/')[-1]
+        lines = _read_tsv(os.path.join(dataset_path, f"{mode}.tsv"))
+        
+        if dataset_name == 'imdb':   
+            for (i, line) in enumerate(tqdm(lines)):
+                if i == 0:
+                    continue
+                try:
+                    src_a_list.append(line[0])
+                    trg_list.append(line[1])
+                except Exception as e:
+                    continue
+            src_dict = {'src_a' : src_a_list, 'src_b' : None}
+            trg_dict = {'trg' : trg_list}
+        
+        elif dataset_name == 'qnli':   
+            for (i, line) in enumerate(tqdm(lines)):
+                if i == 0:
+                    continue
+                try:
+                    src_a_list.append(line[0])
+                    src_b_list.append(line[1])
+                    trg_list.append(line[2])
+                except Exception as e:
+                    continue
+            src_dict = {'src_a' : src_a_list, 'src_b' : src_b_list}
+            trg_dict = {'trg' : trg_list}
+         
+        return src_dict, trg_dict # dict, dict
+
+    else :
+        raise ValueError("huggingface_data must be specified (True of False)")
 
 # split data to train, validation, test
 def split_data(dataset:dict, ratio:list, seed:int, mode:str) -> (list, list):
