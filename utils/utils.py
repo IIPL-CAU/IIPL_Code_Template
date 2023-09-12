@@ -21,7 +21,7 @@ def set_seed(seed:int=None) -> None:
 
 # logger setting
 def get_logger(logger_name:str=None):
-    ''' 
+    '''
         logger = get_logger(logger_path, logger_name, args)
         logger.info("message")
     '''
@@ -33,7 +33,9 @@ def get_logger(logger_name:str=None):
     
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
+
         #handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
+
         logger.addHandler(handler)
     
     #https://docs.python.org/3/library/logging.handlers.html
@@ -51,9 +53,9 @@ def init_wandb(wandb_dir="./wandb", project_name="project", run_name:str=None, a
     # init wandb
     wandb.init(project="project_name", name="run_name", config=args)
     # hyperparameter logging
-    wandb.config.update(args) 
+    wandb.config.update(args)
     # metric logging (dict) 다양한 형태로 logging 가능
-    wandb.log({"loss": loss}, step=epoch) 
+    wandb.log({"loss": loss}, step=epoch)
     # alert 가능
     wandb.alert(title="alert title", text="alert text")
     '''

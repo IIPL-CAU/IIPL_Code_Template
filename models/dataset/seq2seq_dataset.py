@@ -1,12 +1,12 @@
 from torch.utils.data.dataset import Dataset
 
 class Seq2Seq_CustomDataset(Dataset):
-    def __init__(self, src_tokenizer, trg_tokenizer, src_list: list = list(), trg_list: list = list(), 
+    def __init__(self, src_tokenizer, trg_tokenizer, src_list: list = list(), trg_list: list = list(),
                  min_len: int = 10, src_max_len: int = 300, trg_max_len: int = 300):
 
         self.src_tensor_list = list()
         self.trg_tensor_list = list()
-        
+
         self.src_tokenizer = src_tokenizer
         self.trg_tokenizer = trg_tokenizer
 
@@ -19,7 +19,7 @@ class Seq2Seq_CustomDataset(Dataset):
                 self.src_tensor_list.append(src)
                 self.trg_tensor_list.append(trg)
         assert len(self.src_tensor_list) == len(self.trg_tensor_list)
-        
+
         self.num_data = len(self.src_tensor_list)
 
     def __getitem__(self, index):
@@ -45,7 +45,7 @@ class Seq2Seq_CustomDataset(Dataset):
         trg_input_ids = trg_encoded_dict['input_ids'].squeeze(0)
         trg_attention_mask = trg_encoded_dict['attention_mask'].squeeze(0)
 
-        return {'src_sequence' : src_input_ids, 'src_attention_mask' : src_attention_mask, 
+        return {'src_sequence' : src_input_ids, 'src_attention_mask' : src_attention_mask,
                 'trg_sequence' : trg_input_ids, 'trg_attention_mask' : trg_attention_mask}
 
     def __len__(self):

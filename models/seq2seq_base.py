@@ -8,10 +8,10 @@ from torch.nn import functional as F
 # Import Huggingface
 from transformers import AutoTokenizer
 # Import Custom Modules
-from utils import encoder_model_setting, decoder_model_setting
+from .utils import encoder_model_setting, decoder_model_setting
 
 class seq2seq_base(nn.Module):
-    def __init__(self, encoder_model_type: str = 'T5-base', decoder_model_type: str = 'T5-base', 
+    def __init__(self, encoder_model_type: str = 't5-base', decoder_model_type: str = 't5-base',
                  src_vocab_num: int = 32000, trg_vocab_num: int = 32000,
                  isPreTrain: bool = True, dropout: float = 0.3):
         super(seq2seq_base, self).__init__()
@@ -28,7 +28,7 @@ class seq2seq_base(nn.Module):
             dropout (float): Dropout ratio
         """
         self.isPreTrain = isPreTrain
-        self.dropout = dropout
+        self.dropout = nn.Dropout(dropout)
 
         # Encoder model setting
         self.encoder_model_type = encoder_model_type
@@ -39,7 +39,7 @@ class seq2seq_base(nn.Module):
         # Decoder model setting
         self.decoder_model_type = decoder_model_type
         decoder, decoder_model_config = decoder_model_setting(decoder_model_type, self.isPreTrain)
-        
+
         self.vocab_num = trg_vocab_num
         self.d_hidden = decoder_model_config.d_model
         self.d_embedding = int(self.d_hidden / 2)
@@ -69,7 +69,7 @@ class seq2seq_base(nn.Module):
         encoder_out = encoder_out['last_hidden_state'] # (batch_size, seq_len, d_hidden)
 
         return encoder_out
-    
+
     def decode(self, trg_input_ids, encoder_hidden_states=None, encoder_attention_mask=None):
         decoder_input_ids = shift_tokens_right(
             trg_input_ids, self.pad_idx, self.decoder_start_token_id
@@ -82,20 +82,21 @@ class seq2seq_base(nn.Module):
         )
 
         decoder_outputs = decoder_outputs['last_hidden_state'] # (batch_size, seq_len, d_hidden)
+        print(decoder_outputs.size())
         decoder_outputs = self.dropout(F.gelu(self.decoder_linear(decoder_outputs)))
         decoder_outputs = self.decoder_linear2(self.decoder_norm(decoder_outputs))
 
         return decoder_outputs
-    
-    def generate(self, decoding_dict:dict = dict(), encoder_hidden_states=None, encoder_attention_mask=None, 
+
+    def generate(self, decoding_dict:dict = dict(), encoder_hidden_states=None, encoder_attention_mask=None,
                  beam_size=3, beam_alpha=0.7, repetition_penalty=0.7):
-        
+
         # Input, output setting
         device = encoder_hidden_states.device
         batch_size = encoder_hidden_states.size(0)
         src_seq_size = encoder_hidden_states.size(1)
         every_batch = torch.arange(0, beam_size * batch_size, beam_size, device=device)
-    
+
         # Encoder hidden state expanding
         encoder_hidden_states = encoder_hidden_states.unsqueeze(1) # (batch_size, 1, seq_len, d_hidden)
         encoder_hidden_states = encoder_hidden_states.repeat(1, beam_size, 1, 1) # (batch_size, beam_size, seq_len, d_hidden)

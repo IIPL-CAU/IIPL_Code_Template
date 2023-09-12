@@ -56,7 +56,7 @@ def training(args):
             custom_dataset_dict['src_list'] = valid_src_list
             custom_dataset_dict['trg_list'] = valid_trg_list
             valid_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
-            
+
             # Dataloader setting
             dataloader_dict = {
                 'train': DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
@@ -73,8 +73,10 @@ def training(args):
             Best_acc = 0
             for epoch in range(args.epochs):
                 print(f"Epoch {epoch + 1}/{args.epochs}")
+
                 total_predictions = []
                 total_labels = []
+
                 for phase in ['train', 'valid']:
                     if phase == 'train':
                         model.train()
@@ -105,6 +107,7 @@ def training(args):
                             scheduler.step()
 
                         if phase == 'valid':
+
                             logits = outputs.detach().cpu().numpy() 
                             predictions = np.argmax(logits, axis=1)
                             labels = trg_label.detach().cpu().numpy() 
@@ -121,9 +124,79 @@ def training(args):
 
     # if args.task =='multi_text_classification':
     #     pass
+    
+    if args.task =='machine_translation':
+        src_tokenizer = tokenizer_load(args)
+        trg_tokenizer = tokenizer_load(args)
 
+        # Train datset setting
+        custom_dataset_dict = dict()
+        custom_dataset_dict['src_tokenizer'] = src_tokenizer
+        custom_dataset_dict['trg_tokenizer'] = trg_tokenizer
+        custom_dataset_dict['src_list'] = train_src_list
+        custom_dataset_dict['trg_list'] = train_trg_list
+        train_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
+
+        # Valid dataset setting
+        custom_dataset_dict['src_list'] = valid_src_list
+        custom_dataset_dict['trg_list'] = valid_trg_list
+        valid_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
+
+        # Dataloader setting
+        dataloader_dict = {
+            'train': DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
+                                pin_memory=True, num_workers=args.num_workers),
+            'valid': DataLoader(valid_dataset, batch_size=args.batch_size, shuffle=False,
+                                pin_memory=True, num_workers=args.num_workers)
+        }
+
+        # Optimizer setting
+        optimizer = get_optimizer(model=model, lr=args.lr, weight_decay=args.weight_decay, optim_type=args.optim_type)
+        scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader_dict['train']) * args.epochs)
+        criterion = nn.CrossEntropyLoss()
+
+        for epoch in range(args.epochs):
+            print(f"Epoch {epoch + 1}/{args.epochs}")
+
+            for phase in ['train', 'valid']:
+                if phase == 'train':
+                    model.train()
+                if phase == 'valid':
+                    # write_log(logger, 'Validation start...')
+                    model.eval()
+
+                for batch in tqdm(dataloader_dict[phase]):
+
+                    # Optimizer gradient setting
+                    optimizer.zero_grad()
+
+                    # Input setting
+                    src_sequence = batch['src_sequence'].to(device)
+                    src_attention_mask = batch['src_attention_mask'].to(device)
+                    trg_sequence = batch['trg_sequence'].to(device)
+                    trg_attention_mask = batch['trg_attention_mask'].to(device)
+
+                    # Model processing
+                    with torch.set_grad_enabled(phase == 'train'):
+                        encoder_out = model.encode(src_input_ids=src_sequence, src_attention_mask=src_attention_mask)
+                        decoder_out = model.decode(trg_input_ids=trg_sequence, encoder_hidden_states=encoder_out, encoder_attention_mask=src_attention_mask)
+
+                    # Loss back-propagation
+                    decoder_out = decoder_out.view(-1, decoder_out.size(-1))
+                    trg_sequence = trg_sequence.view(-1)
+                    loss = criterion(decoder_out, trg_sequence)
+
+                    if phase == 'train':
+                            loss.backward()
+                            optimizer.step()
+                            scheduler.step()
+
+                    if phase == 'valid':
+                        pass
+                        # TO BE IMPLEMENTED
 
     # if args.task =='machine_translation':
     #     pass
+
 
     # return None

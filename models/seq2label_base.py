@@ -1,5 +1,6 @@
 import torch
 from torch import nn
+from torch.nn import functional as F
 from transformers import BertModel
 import torch.nn.functional as F
 
@@ -19,7 +20,7 @@ class seq2label_base(nn.Module):
         """
         self.num_classes = args.num_classes
         self.bert_model_name = args.model
-        
+
         self.bert = BertModel.from_pretrained(self.bert_model_name)
         self.dropout = nn.Dropout(0.1)
         self.fc = nn.Linear(self.bert.config.hidden_size, self.num_classes)
@@ -28,7 +29,7 @@ class seq2label_base(nn.Module):
         self.classify_linear = nn.Linear(self.d_hidden, self.d_embedding)
         self.classify_norm = nn.LayerNorm(self.d_embedding, eps=1e-12)
         self.classify_linear2 = nn.Linear(self.d_embedding, self.num_classes)
-    
+
     def encode(self, src_input_ids, src_attention_mask):
 
         if src_input_ids.dtype == torch.int64:
