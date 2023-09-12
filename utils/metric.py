@@ -6,14 +6,14 @@ from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_sc
 from sklearn.metrics import classification_report, confusion_matrix#, plot_confusion_matrix
 
 
-# def metric():
+def metric():
 
-#     X, y = make_classification(n_samples=1000, n_classes=2, weights=[0.2, 0.8], random_state=0)
-#     X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
-#     clf = LogisticRegression(random_state=0).fit(X_train, y_train)
-#     y_pred = clf.predict(X_test)
+    X, y = make_classification(n_samples=1000, n_classes=2, weights=[0.2, 0.8], random_state=0)
+    X_train, X_test, y_train, y_test = train_test_split(X, y, random_state=0)
+    clf = LogisticRegression(random_state=0).fit(X_train, y_train)
+    y_pred = clf.predict(X_test)
 
-#     return classification_report(y_test, y_pred)
+    return classification_report(y_test, y_pred)
 
 
 
@@ -43,3 +43,4 @@ def get_f1(labels, predictions):
 def get_classification_report(labels, predictions):
     cr = classification_report(labels, predictions)
     return {'classification_repor: ', cr}
+    
