@@ -28,14 +28,24 @@ class seq2label_base(nn.Module):
         self.classify_norm = nn.LayerNorm(self.d_embedding, eps=1e-12)
         self.classify_linear2 = nn.Linear(self.d_embedding, self.num_classes)
     
-    def encode(self, input_ids, attention_mask):
-        outputs = self.bert(input_ids=input_ids, attention_mask=attention_mask)
+    def encode(self, src_input_ids, src_attention_mask):
+
+        if src_input_ids.dtype == torch.int64:
+            encoder_out = self.encoder(input_ids=src_input_ids,
+                                       attention_mask=src_attention_mask)
+        else:
+            encoder_out = self.encoder(inputs_embeds=src_input_ids,
+                                       attention_mask=src_attention_mask)
+        encoder_out = encoder_out.pooler_output # (batch_size, d_hidden)
+
+        return encoder_out
+
         return outputs
 
-    def classify(self, outputs):
-        pooled_output = outputs.pooler_output
-        x = self.dropout(pooled_output)
-        logits = self.fc(x)
+    def classify(self, encoder_out):
+        outputs = encoder_out.pooler_output # (batch_size, d_hidden)
+        outputs = self.dropout(F.gelu(self.classify_linear(outputs)))
+        logits = self.classify_linear2(self.classify_norm(outputs))
         return logits
 
     def forward(self, input_ids, attention_mask):
