@@ -1,11 +1,11 @@
 # IIPL_Code_Template
-This project is an Code Template project conducted by Chung-Ang University Intelligent Information Processing Lab. Our goal is to create a code template that can be helpful not only to new students entering our lab but also to everyone who wants to research deep learning.
+This project is a Code Template project conducted by Chung-Ang University Intelligent Information Processing Lab. Our goal is to create a code template that can be helpful not only to new students entering our lab but also to everyone who wants to research deep learning.
 
 ### Dependencies
 
 This code is written in Python. Dependencies include
 
-* Python == 3.6
+* Python == 3.8
 * PyTorch == 1.10.0
 * Transformers (Huggingface) == 4.8.1
 * sklearn (Scikit-Learn) == 1.3.0

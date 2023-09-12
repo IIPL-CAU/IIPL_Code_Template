@@ -7,8 +7,8 @@ def dataset_init(args:argparse.Namespace = None, dataset_dict:dict = None):
         return Seq2Label_CustomDataset(src_tokenizer=dataset_dict['src_tokenizer'],
                                        src_list=dataset_dict['src_list'], trg_list=dataset_dict['trg_list'],
                                        min_len=args.min_len, src_max_len=args.src_max_len)
-    
+
     if args.task == "machine_translation":
-        return Seq2Seq_CustomDataset(src_tokenizer=dataset_dict['src_tokenizer'], trg_okenizer=dataset_dict['trg_tokenizer'],
+        return Seq2Seq_CustomDataset(src_tokenizer=dataset_dict['src_tokenizer'], trg_tokenizer=dataset_dict['trg_tokenizer'],
                                      src_list=dataset_dict['src_list'], trg_list=dataset_dict['trg_list'],
                                      min_len=args.min_len, src_max_len=args.src_max_len, trg_max_len=args.trg_max_len)
