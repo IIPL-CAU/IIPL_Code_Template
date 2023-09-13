@@ -14,9 +14,6 @@ if __name__=='__main__':
     wandb.run.name = args.wandb
     wandb.config.update(args)
 
-    # if args.preprocessing:
-    #     preprocessing(args)
-
     if args.training:
         training(args)
 

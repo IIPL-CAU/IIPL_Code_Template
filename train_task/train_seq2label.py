@@ -18,7 +18,7 @@ import wandb
 from models.tokenizer.tokenizer_init import tokenizer_load
 logger = get_logger("Training")
 
-def train_seq2label(args, ):
+def train_seq2label(args):
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     
     # Data Load

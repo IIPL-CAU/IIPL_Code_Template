@@ -9,5 +9,6 @@ tensorboard_runs/
 *.csv
 *.sh
 *.pt
+*.sh
 testing.py
 wandb/
