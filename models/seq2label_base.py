@@ -3,9 +3,12 @@ from torch import nn
 from torch.nn import functional as F
 from transformers import BertModel
 import torch.nn.functional as F
+from .utils import encoder_model_setting
 
 class seq2label_base(nn.Module):
-    def __init__(self, args):
+    def __init__(self, encoder_model_type: str = 'bert-base-uncased',src_vocab_num: int = 32000, 
+                 num_classes: int = 2, d_hidden : int = 768, 
+                 isPreTrain: bool = True, dropout: float = 0.1):
         super(seq2label_base, self).__init__()
         """
         Initialize Seq2Label model
@@ -18,12 +21,16 @@ class seq2label_base(nn.Module):
             isPreTrain (bool): Pre-trained model usage
             dropout (float): Dropout ratio
         """
-        self.num_classes = args.num_classes
-        self.bert_model_name = args.model
+        self.num_classes = num_classes
+        self.d_hidden = d_hidden
+        self.d_embedding = self.d_hidden // 2
+        self.isPreTrain = isPreTrain
 
-        self.bert = BertModel.from_pretrained(self.bert_model_name)
-        self.dropout = nn.Dropout(0.1)
-        self.fc = nn.Linear(self.bert.config.hidden_size, self.num_classes)
+        # Encoder model setting
+        self.encoder_model_type = encoder_model_type
+        self.encoder, encoder_model_config = encoder_model_setting(encoder_model_type, self.isPreTrain)
+        self.dropout = nn.Dropout(dropout)
+        self.fc = nn.Linear(self.encoder.config.hidden_size, self.num_classes)
 
         # Linear Model Setting
         self.classify_linear = nn.Linear(self.d_hidden, self.d_embedding)
@@ -38,11 +45,9 @@ class seq2label_base(nn.Module):
         else:
             encoder_out = self.encoder(inputs_embeds=src_input_ids,
                                        attention_mask=src_attention_mask)
-        encoder_out = encoder_out.pooler_output # (batch_size, d_hidden)
+        
 
         return encoder_out
-
-        return outputs
 
     def classify(self, encoder_out):
         outputs = encoder_out.pooler_output # (batch_size, d_hidden)

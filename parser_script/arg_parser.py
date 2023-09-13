@@ -5,7 +5,7 @@ tokenizer = 'bert-base-uncased'
 TASK = 'single_text_classification'
 model_path = 'models/save/bert_base_uncased_classification_IMDB_ver1.pt'
 
-file_dir = 'imdb'
+dataset_path = 'imdb'
 file_type ='csv'
 DATASET = 'IMDB'
 
@@ -35,7 +35,7 @@ def init_parser():
     parser.add_argument('--batch_size', default=batch_size, type=int)
 
     parser.add_argument('--model', default=MODEL, type=str)
-    parser.add_argument('--dataset_path', default=file_dir, type=str)
+    parser.add_argument('--dataset_path', default=dataset_path, type=str)
     parser.add_argument('--file_type', default=file_type, type=str)
     parser.add_argument('--model_path', default=model_path, type=str)
 
@@ -59,6 +59,7 @@ def init_parser():
     parser.add_argument('--src_max_len', default=300, type=int)
     parser.add_argument('--trg_max_len', default=300, type=int)
     parser.add_argument('--num_workers', default=1, type=int)
+    parser.add_argument('--d_hidden', default=768, type=int)
 
     args = parser.parse_args()
 

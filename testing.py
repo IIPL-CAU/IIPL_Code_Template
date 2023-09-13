@@ -29,14 +29,16 @@ def testing(args):
 
     if args.task == 'single_text_classification':
         if args.model == "bert-base-uncased":
+
+            
             # tokenizer init
             src_tokenizer = tokenizer_load(args)
 
             # Test dataset setting
             custom_dataset_dict = dict()
             custom_dataset_dict['src_tokenizer'] = src_tokenizer
-            custom_dataset_dict['src_list'] = test_src_list
-            custom_dataset_dict['trg_list'] = test_trg_list
+            custom_dataset_dict['src_list'] = test_src_list['src_a']
+            custom_dataset_dict['trg_list'] = test_trg_list['trg']
             test_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
             test_dataloader = DataLoader(test_dataset, batch_size=args.batch_size, shuffle=True,
                                           pin_memory=True, num_workers=args.num_workers)

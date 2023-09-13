@@ -4,7 +4,7 @@ from transformers import AutoModelForSequenceClassification
 
 def model_init(args):
     if args.task in ['single_text_classification', 'multi_text_classification', 'sentiment_analysis']:
-        model = seq2label_base(args)
+        model = seq2label_base()
 
     if args.task in ['machine_translation', 'text_style_transfer', 'summarization']:
         model = seq2seq_base()
