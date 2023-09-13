@@ -7,8 +7,10 @@ def encoder_model_setting(model_name, isPreTrain):
         basemodel = AutoModel.from_pretrained(model_name)
     else:
         basemodel = AutoModel.from_config(model_config)
-
-    encoder = basemodel.encoder
+    
+    if model_name == 'bert-base-uncased':
+        encoder = basemodel
+    else : encoder = basemodel.encoder
 
     return encoder, model_config
 

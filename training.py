@@ -44,19 +44,18 @@ def training(args):
 
             # tokenizer init
             src_tokenizer = tokenizer_load(args)
-
             # Train dataset setting
             custom_dataset_dict = dict()
             custom_dataset_dict['src_tokenizer'] = src_tokenizer
-            custom_dataset_dict['src_list'] = train_src_list
-            custom_dataset_dict['trg_list'] = train_trg_list
+            custom_dataset_dict['src_list'] = train_src_list['src_a']
+            custom_dataset_dict['trg_list'] = train_trg_list['trg']
             train_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
 
             # Valid dataset setting
-            custom_dataset_dict['src_list'] = valid_src_list
-            custom_dataset_dict['trg_list'] = valid_trg_list
+            custom_dataset_dict['src_list'] = valid_src_list['src_a']
+            custom_dataset_dict['trg_list'] = valid_trg_list['trg']
             valid_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
-
+            
             # Dataloader setting
             dataloader_dict = {
                 'train': DataLoader(train_dataset, batch_size=args.batch_size, shuffle=True,
