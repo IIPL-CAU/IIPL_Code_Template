@@ -10,6 +10,7 @@ import string
 
 # seed setting
 def set_seed(seed:int=None) -> None:
+    random.seed(seed)
     np.random.seed(seed)
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
@@ -22,26 +23,36 @@ def set_seed(seed:int=None) -> None:
 # logger setting
 def get_logger(logger_name:str=None):
     '''
-        logger = get_logger(logger_path, logger_name, args)
+        logger = get_logger(logger_name)
         logger.info("message")
     '''
-    logging.basicConfig(level=logging.INFO)
     logger = logging.getLogger(logger_name)
     logger.propagate = False
-    logger.setLevel(logging.INFO)
-    
-    
+    logger.setLevel(logging.DEBUG)
     if not logger.handlers:
         handler = logging.StreamHandler(sys.stdout)
-
-        #handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
-
+        handler.setFormatter(logging.Formatter("[%(asctime)s] %(message)s"))
         logger.addHandler(handler)
     
-    #https://docs.python.org/3/library/logging.handlers.html
-    #check the library(link above) but there is no StreamHandler.setFomatter : maybe library modified? 
-    
     return logger
+    # 주형님 코드
+    # logging.basicConfig(level=logging.INFO)
+    # logger = logging.getLogger(logger_name)
+    # logger.propagate = False
+    # logger.setLevel(logging.INFO)
+    
+    
+    # if not logger.handlers:
+    #     handler = logging.StreamHandler(sys.stdout)
+
+    #     #handler.setFomatter(logging.Formatter("[%(asctime)s] %(message)s"))
+
+    #     logger.addHandler(handler)
+    
+    # #https://docs.python.org/3/library/logging.handlers.html
+    # #check the library(link above) but there is no StreamHandler.setFomatter : maybe library modified? 
+    
+    # return logger
 
 # wandb setting
 def init_wandb(wandb_dir="./wandb", project_name="project", run_name:str=None, args:argparse.Namespace=None):
@@ -62,8 +73,12 @@ def init_wandb(wandb_dir="./wandb", project_name="project", run_name:str=None, a
     if run_name is None:
         run_name = get_run_name() # random name generation
 
-    wandb.init(dir=wandb_dir, project=project_name, name=run_name,  config=args.__dict__)
+    wandb.init(dir=wandb_dir, project=project_name, name=run_name, config=args.__dict__)
 
 # size 만큼의 랜덤한 문자열 생성
-def get_run_name(size=12, args:argparse.Namespace=None):
+def get_run_name(size=12):
     return ''.join(random.SystemRandom().choice(string.ascii_uppercase + string.digits) for _ in range(size))
+
+# if __name__ == "__main__":
+#     logger = get_logger('name')
+#     logger.info("message")
