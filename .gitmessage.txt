@@ -3,15 +3,11 @@
 
 ################
 # 본문(추가 설명)을 아랫줄에 작성
-dataloader - local dataset load 수정
 
 ################
 # 꼬릿말(footer)을 아랫줄에 작성 (관련된 이슈 번호 등 추가)
 
 ################
-feature : local dataset(.csv) load 기능 추가
-refactor : src_list, trg_list -> src_dict{'src_a_list':...,'src_b_list':...}, trg_dict{'trg_list':...}
-
 # feature : 새로운 기능 추가
 # fix : 버그 수정
 # docs : 문서 수정
