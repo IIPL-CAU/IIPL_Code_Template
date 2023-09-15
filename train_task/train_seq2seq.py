@@ -23,7 +23,7 @@ logger = get_logger("Training")
 def train_seq2seq(args):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    
+
     # Data Load
     train_src_list, train_trg_list = data_load(dataset_path=args.dataset_path, data_split_ratio=args.data_split_ratio,
                                                seed=args.seed, mode='train')
@@ -41,20 +41,21 @@ def train_seq2seq(args):
     logger.info(f'{args.model} model loaded')
 
     logger.info(f'{args.task} start train!')
+
+    # tokenizer init
     src_tokenizer = tokenizer_load(args)
     trg_tokenizer = tokenizer_load(args)
-
     # Train datset setting
     custom_dataset_dict = dict()
     custom_dataset_dict['src_tokenizer'] = src_tokenizer
     custom_dataset_dict['trg_tokenizer'] = trg_tokenizer
-    custom_dataset_dict['src_list'] = train_src_list
-    custom_dataset_dict['trg_list'] = train_trg_list
+    custom_dataset_dict['src_list'] = train_src_list['src_a']
+    custom_dataset_dict['trg_list'] = train_trg_list['trg']
     train_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
 
     # Valid dataset setting
-    custom_dataset_dict['src_list'] = valid_src_list
-    custom_dataset_dict['trg_list'] = valid_trg_list
+    custom_dataset_dict['src_list'] = valid_src_list['src_a']
+    custom_dataset_dict['trg_list'] = valid_trg_list['trg']
     valid_dataset = dataset_init(args=args, dataset_dict=custom_dataset_dict)
 
     # Dataloader setting
@@ -70,7 +71,9 @@ def train_seq2seq(args):
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader_dict['train']) * args.epochs)
     criterion = nn.CrossEntropyLoss()
 
+    Best_loss = np.inf
     for epoch in range(args.epochs):
+        val_loss = 0
         print(f"Epoch {epoch + 1}/{args.epochs}")
 
         for phase in ['train', 'valid']:
@@ -79,6 +82,7 @@ def train_seq2seq(args):
             if phase == 'valid':
                 # write_log(logger, 'Validation start...')
                 model.eval()
+                logger.info(f"validation...")
 
             for batch in tqdm(dataloader_dict[phase]):
 
@@ -89,7 +93,7 @@ def train_seq2seq(args):
                 src_sequence = batch['src_sequence'].to(device)
                 src_attention_mask = batch['src_attention_mask'].to(device)
                 trg_sequence = batch['trg_sequence'].to(device)
-                trg_attention_mask = batch['trg_attention_mask'].to(device)
+                # trg_attention_mask = batch['trg_attention_mask'].to(device)
 
                 # Model processing
                 with torch.set_grad_enabled(phase == 'train'):
@@ -102,10 +106,15 @@ def train_seq2seq(args):
                 loss = criterion(decoder_out, trg_sequence)
 
                 if phase == 'train':
-                        loss.backward()
-                        optimizer.step()
-                        scheduler.step()
+                    loss.backward()
+                    optimizer.step()
+                    scheduler.step()
 
                 if phase == 'valid':
-                    pass
-                    # TO BE IMPLEMENTED
+                    valid_loss += loss.item()
+
+        val_loss /= len(dataloader_dict['valid'])
+        if val_loss < Best_loss:
+            torch.save(model.state_dict(), args.model_path)
+            Best_loss = val_loss
+        logger.info(f"validation finish! Loss : {val_loss} / best loss : {Best_loss}")
