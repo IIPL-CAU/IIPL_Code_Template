@@ -13,4 +13,5 @@ tensorboard_runs/
 *.log
 testing.py
 wandb/
-!seq2label.sh
+!single_text_classification.sh
+!machine_translation.sh
