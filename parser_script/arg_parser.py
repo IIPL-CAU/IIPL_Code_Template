@@ -12,8 +12,6 @@ batch_size=16
 
 def init_parser():
     parser = argparse.ArgumentParser(description='Parsing Method')
-
-    parser.add_argument('--wandb', default='IMDB', type=str, help='wandb run name')
     # Task setting
     parser.add_argument('--task', default='single_text_classification', type=str)
     parser.add_argument('--preprocessing', action='store_true')
