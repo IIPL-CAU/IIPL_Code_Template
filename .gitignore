@@ -10,5 +10,7 @@ tensorboard_runs/
 *.sh
 *.pt
 *.sh
+*.log
 testing.py
 wandb/
+!seq2label.sh
