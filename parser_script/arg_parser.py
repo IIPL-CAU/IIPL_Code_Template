@@ -7,7 +7,7 @@ model_path = 'models/save/bert_base_uncased_classification_IMDB_ver1.pt'
 
 dataset_path = 'imdb'
 file_type ='csv'
-DATASET = 'IMDB'
+
 
 epochs = 4
 lr = 2e-5
@@ -29,13 +29,12 @@ def init_parser():
     parser.add_argument('--testing', action='store_true')
     parser.add_argument('--resume', action='store_true')
 
-    parser.add_argument('--dataset', default=DATASET, type=str)
+    parser.add_argument('--dataset_path', default=dataset_path, type=str)
     parser.add_argument('--val_ratio', default=0.2, type=float,
                             help='val_ratio Default is 0.2')
     parser.add_argument('--batch_size', default=batch_size, type=int)
 
     parser.add_argument('--model', default=MODEL, type=str)
-    parser.add_argument('--dataset_path', default=dataset_path, type=str)
     parser.add_argument('--file_type', default=file_type, type=str)
     parser.add_argument('--model_path', default=model_path, type=str)
 
