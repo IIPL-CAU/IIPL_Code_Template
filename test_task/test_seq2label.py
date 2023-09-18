@@ -51,12 +51,15 @@ def test_seq2label(args):
         with torch.no_grad(): # gradient 계산 context를 비활성화 ==> 필요한 메모리가 줄어들고 연산속도가 증가
             outputs = model(input_ids=src_sequence, attention_mask=src_attention_mask)
 
-            logits = outputs.detach().cpu().numpy() 
-            predictions = np.argmax(logits, axis=1)
-            labels = trg_label.detach().cpu().numpy() 
-
+            # logits = outputs.detach().cpu().numpy() 
+            # predictions = np.argmax(logits, axis=1)
+            # labels = trg_label.detach().cpu().numpy() 
+            logits = outputs.logits 
+            predictions = torch.argmax(logits, dim=1)
+            
             total_predictions.extend(predictions)
-            total_labels.extend(labels)
+            total_labels.extend(trg_label)
+            
             
     accuracy    = metric.get_accuracy(total_labels, total_predictions)
     recall      = metric.get_recall(total_labels, total_predictions)
