@@ -1,7 +1,7 @@
 import os
 import argparse
 import torch
-from datasets import load_dataset, concatenate_datasets
+from datasets import load_dataset, concatenate_datasets, Dataset
 import numpy as np
 import pandas as pd
 from tqdm import tqdm 
@@ -64,7 +64,7 @@ def data_load(dataset_path:str, huggingface_data:bool=True, data_split_ratio:lis
     
     elif huggingface_data == False:
         if datapath.endswith('.tsv'):
-            
+            pass
         else:
             raise ValueError("dataset_path must be end with .tsv")
     else:
@@ -81,17 +81,18 @@ def split_dataset(dataset_name:str, task_name:str, key_list:list, ratio:list, se
 
         tr_rest_ratio = ratio[1]+ratio[2]
         val_test_ratio = ratio[2] / (ratio[1] + ratio[2])
-
         for key in list(raw_dataset.keys()): # train, validation, test
             if not key in ['train', 'validation', 'valid', 'test']:
                 raw_dataset.pop(key)
 
-
+        
         combined_dataset = concatenate_datasets([raw_dataset[split] for split in list(raw_dataset.keys())])
+        
         tr_dataset, rest_dataset = train_test_split(combined_dataset, random_state=seed,  test_size=tr_rest_ratio)
         if mode == "train":
             return tr_dataset
         else:
+            rest_dataset = Dataset.from_dict(rest_dataset)
             val_dataset, test_dataset = train_test_split(rest_dataset, random_state=seed, test_size=val_test_ratio)
             if mode == "valid":
                 return val_dataset

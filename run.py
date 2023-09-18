@@ -10,8 +10,8 @@ import wandb
 if __name__=='__main__':
     args = init_parser()
 
-    wandb.init(project="IIPL_CODE_TEMP")
-    wandb.run.name = args.wandb
+    wandb.init(project=args.task)
+    wandb.run.name = args.model_path
     wandb.config.update(args)
 
     if args.training:

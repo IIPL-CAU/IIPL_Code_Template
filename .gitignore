@@ -10,5 +10,8 @@ tensorboard_runs/
 *.sh
 *.pt
 *.sh
+*.log
 testing.py
 wandb/
+!single_text_classification.sh
+!machine_translation.sh

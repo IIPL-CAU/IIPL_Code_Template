@@ -30,7 +30,7 @@ def train_seq2seq(args):
     valid_src_list, valid_trg_list = data_load(dataset_path=args.dataset_path, data_split_ratio=args.data_split_ratio,
                                                seed=args.seed, mode='valid')
     args.num_classes = len(set(train_trg_list))
-    logger.info(f'{args.dataset} data_load finish')
+    logger.info(f'{args.dataset_path} data_load finish')
 
     # Model Load
     logger.info(f'start {args.model} model init')
