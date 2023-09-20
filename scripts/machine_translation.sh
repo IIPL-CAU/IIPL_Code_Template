@@ -8,7 +8,7 @@ tokenizer='t5-base'
 TASK='machine_translation'
 model_path='models/save/'
 dataset_path='multi30k'
-
+batch_size=16
 
 
 for string in ${TASK} ${model} ${data_path} ${time}; do
@@ -27,5 +27,6 @@ fi
 
 if ${test} -eq true; then
     CUDA_VISIBLE_DEVICES=${local_rank} python3 run.py --testing --task ${TASK} --model ${model} --tokenizer ${tokenizer} --dataset_path ${dataset_path}  --model_path ${model_path}\
+                                                    --batch_size ${batch_size}
     > results/test/${TASK}_${model}_${dataset_path}_${time}.log 
 fi
