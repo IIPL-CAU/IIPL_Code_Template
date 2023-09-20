@@ -71,10 +71,10 @@ def train_seq2seq(args):
     scheduler = get_linear_schedule_with_warmup(optimizer, num_warmup_steps=0, num_training_steps=len(dataloader_dict['train']) * args.epochs)
     criterion = nn.CrossEntropyLoss()
 
-    Best_loss = np.inf
+    Best_loss = 0
     for epoch in range(args.epochs):
         val_loss = 0
-        print(f"Epoch {epoch + 1}/{args.epochs}")
+        logger.info(f"Epoch {epoch + 1}/{args.epochs}")
 
         for phase in ['train', 'valid']:
             if phase == 'train':
@@ -110,11 +110,12 @@ def train_seq2seq(args):
                     optimizer.step()
                     scheduler.step()
 
-                if phase == 'valid':
-                    valid_loss += loss.item()
 
-        val_loss /= len(dataloader_dict['valid'])
-        if val_loss < Best_loss:
-            torch.save(model.state_dict(), args.model_path)
-            Best_loss = val_loss
+                if phase == 'valid':
+                    val_loss += loss.item()
+
+            val_loss /= len(dataloader_dict['valid'])
+            if val_loss < Best_loss:
+                torch.save(model.state_dict(), args.model_path)
+                Best_loss = val_loss
         logger.info(f"validation finish! Loss : {val_loss} / best loss : {Best_loss}")
